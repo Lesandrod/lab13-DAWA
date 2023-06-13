@@ -35,7 +35,23 @@ export class ListarProductosComponent implements OnInit{
   generarPDF(){
     console.log('funciona');
     
-    this._productoService.getPDF()
+    this._productoService.getPDF().subscribe(response => {
+      const file = new Blob([response], { type: 'application/pdf' });
+
+      const url = URL.createObjectURL(file);
+      window.open(url)
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Lab13.pdf';
+
+      document.body.appendChild(a);
+      a.click();
+
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+    },)
     
   }
 

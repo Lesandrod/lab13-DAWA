@@ -14,17 +14,8 @@ export class ProductoService {
 
   }
   
-  getPDF(): void {
-    this.http.get( this.pdf, { responseType: 'blob' })
-      .subscribe((data: Blob) => {
-        const downloadUrl = URL.createObjectURL(data);
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = 'datos.pdf';
-        link.click();
-      }, error => {
-        console.error('Error al generar el PDF', error);
-      });
+  getPDF(): Observable<any> {
+    return this.http.get(this.pdf, { responseType: 'blob' })
   }
 
   getProductos(): Observable<any> {

@@ -1,55 +1,40 @@
 const Producto = require("../models/Producto");
 const User = require("../models/User");
-const PDFDocument = require('pdfkit');
-const fs = require('fs')
-
-
-
+const { jsPDF } = require('jspdf')
+require('jspdf-autotable');
 
 exports.generarPDf = async(req,res) =>{
     try {
         const user =  await User.find().lean();
         const productos = await Producto.find().lean();
+        const nombreArchivo = 'Lab13.pdf';
+        const doc = new jsPDF();
 
-        // const datas = [...user, ...producto];
-
-        const doc = new PDFDocument();
-
-        res.setHeader('Content-Disposition', 'attachment; filename="Datos.pdf"');
-
-        const writeStream = fs.createWriteStream('Datos.pdf');
-        doc.pipe(writeStream);
-
-        doc.text(`Usuarios :  ${user.length}`)
-        user.forEach(usuario=>{
-            
-            doc.text('--------------------------------')
-            doc.text(`Usuario: ${usuario.username}`)
-            doc.text(`Email: ${usuario.email}`)
-            doc.text('--------------------------------')
-        })
-        doc.text('');
-
-        doc.text(`Productos :  ${productos.length}`)
-
-        productos.forEach(producto=>{
-            doc.text('--------------------------------')
-            doc.text(`Producto: ${producto.producto}`)
-            doc.text(`Categoria: ${producto.categoria}`)
-            doc.text(`Categoria: ${producto.ubicacion}`)
-            doc.text(`Categoria: ${producto.precio}`)
-            doc.text(`Categoria: ${producto.fechaCreacion}`)
-            doc.text('--------------------------------')
-            doc.text('');
-            
-        })
-
-        doc.end();
-        writeStream.on('finish', () => {
-            const fileStream = fs.createReadStream('Datos.pdf');
-        fileStream.pipe(res);
+        //tabla usuarios
+        doc.setFontSize(15);   
+        doc.autoTable({
+        theme: 'grid',
+        startY: 30,
+        head: [[`Usuarios (${user.length})`, 'Email']],
+        body: user.map(user => [user.username, user.email])
         });
- 
+
+      
+        // Tabla de productos
+        doc.setFontSize(15);
+        doc.autoTable({
+        theme: 'grid',
+        startY: 90,
+        head: [[`Productos (${productos.length})`, 'Categoría','Precio','Ubicacion','Fecha de Creacion'],],
+        body: productos.map(producto => [producto.producto, producto.categoria, producto.precio,producto.ubicacion,producto.fechaCreacion])
+        });
+
+        
+
+        res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.contentType('application/pdf');
+        res.send(Buffer.from(doc.output('arraybuffer')));
 
 
     } catch (error) {
@@ -57,4 +42,6 @@ exports.generarPDf = async(req,res) =>{
         res.status(500).send('Hubo un error');
         
     }
+
+   
 }
