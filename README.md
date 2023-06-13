@@ -16,7 +16,9 @@ El proyecto consiste en un servidor(backend) y el sistema(frontend)
 ```bash
   git clone https://github.com/Lesandrod/lab13-DAWA.git
 ```
-
+```bash
+  cd lab13-DAWA
+```
 ## Para el archivo "Servidor" 
 1. Despues de clonar el proyecto acceder a la carpeta.
 ```bash
